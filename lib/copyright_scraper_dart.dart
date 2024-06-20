@@ -1,3 +1,4 @@
+import 'package:copyright_scraper_dart/copyright_info.dart';
 import 'package:puppeteer/puppeteer.dart';
 
 class Scraper {
@@ -7,7 +8,7 @@ class Scraper {
   late Browser _browser;
   late Page _page;
   String originLink = 'https://publicrecords.copyright.gov/';
-  List<String> results = [];
+  List<CopyRightInfo> results = [];
 
   Scraper({
     required this.year,
