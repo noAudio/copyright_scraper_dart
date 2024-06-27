@@ -33,7 +33,6 @@ class Scraper {
   Future<void> setUpBrowser() async {
     _browser = await puppeteer.launch(headless: true);
     _page = await _browser!.newPage();
-    // await _page.goto(originLink, wait: Until.domContentLoaded);
   }
 
   bool isBrowserOpen() => _browser != null;
@@ -64,7 +63,6 @@ class Scraper {
         }
       }
     });
-    // print(results[results.length - 1].applicationTitle);
     await _completer.future;
     await _browser!.close();
   }
@@ -72,7 +70,6 @@ class Scraper {
   void extractInfo(dynamic payload) {
     print('Extracting data...');
     List<dynamic> data = payload['data'];
-    // int length = results.length;
     for (var item in data) {
       String regNo = item['hit']['registration_number'];
 
@@ -105,9 +102,6 @@ class Scraper {
         ),
       );
     }
-    // if (results.length == length + data.length) {
-    // }
     _completer.complete();
-    // print(results.length);
   }
 }
