@@ -45,7 +45,7 @@ void main(List<String> arguments) async {
       for (int page = 1; page <= pages; page++) {
         Scraper scraper = Scraper(year: year, pages: pages);
         // if (page == 5) break;
-        print('$page of $pages (${pages - page} pages left)');
+        print('$year - $page of $pages (${pages - page} pages left)');
         try {
           await scraper
               .getData(
