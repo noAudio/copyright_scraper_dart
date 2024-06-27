@@ -84,7 +84,7 @@ class Scraper {
               ? item['hit']['title_concatenated']
               : 'TITLE MISSING';
       String copyrightClaimant = item['hit']['claimants_list'] != null
-          ? "${item['hit']['claimants_list'][0]['claimant_full_name']}, ${item['hit']['claimants_list'][0]['claimant_dates'] != null ? item['hit']['claimants_list'][0]['claimant_dates'].split(' ')[0] : ''}. ${item['hit']['claimants_list'][0]['claimant_address']}"
+          ? "${item['hit']['claimants_list'][0]['claimant_full_name']}, ${item['hit']['claimants_list'][0]['claimant_dates'] != null ? item['hit']['claimants_list'][0]['claimant_dates'].split(' ')[0] : ''}. ${item['hit']['claimants_list'][0]['claimant_address'] != null && item['hit']['claimants_list'][0]['claimant_address'] != 'null' ? item['hit']['claimants_list'][0]['claimant_address'] : ''}"
           : 'n/a';
       String rightsPermissions =
           item['hit']['rights_and_permissions_statement'] != null
