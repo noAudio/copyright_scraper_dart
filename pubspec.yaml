@@ -8,6 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  excel: ^4.0.3
   puppeteer: ^3.11.0
   # path: ^1.8.0
 

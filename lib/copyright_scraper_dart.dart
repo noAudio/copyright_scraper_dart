@@ -9,7 +9,7 @@ class Scraper {
   String year;
   int pages;
   late List<String> dateRange;
-  late Browser _browser;
+  Browser? _browser;
   late Page _page;
   late Completer<void> _completer;
   String originLink = 'https://publicrecords.copyright.gov/';
@@ -32,8 +32,14 @@ class Scraper {
 
   Future<void> setUpBrowser() async {
     _browser = await puppeteer.launch(headless: true);
-    _page = await _browser.newPage();
+    _page = await _browser!.newPage();
     // await _page.goto(originLink, wait: Until.domContentLoaded);
+  }
+
+  bool isBrowserOpen() => _browser != null;
+
+  Future<void> closeBrowser() async {
+    await _browser!.close();
   }
 
   Future<void> getData(String link) async {
@@ -42,6 +48,7 @@ class Scraper {
     await _page.goto(link, wait: Until.domContentLoaded);
     sleep(Duration(seconds: Random().nextInt(6) + 3));
     var url = '';
+
     _page.onResponse.listen((response) async {
       url = response.url;
       if (url ==
@@ -49,6 +56,7 @@ class Scraper {
         if (response.status == 200) {
           try {
             var payload = await response.json;
+            print('Found data...');
             extractInfo(payload);
           } catch (e) {
             print(e);
@@ -58,16 +66,26 @@ class Scraper {
     });
     // print(results[results.length - 1].applicationTitle);
     await _completer.future;
-    await _browser.close();
+    await _browser!.close();
   }
 
   void extractInfo(dynamic payload) {
+    print('Extracting data...');
     List<dynamic> data = payload['data'];
-    int length = results.length;
+    // int length = results.length;
     for (var item in data) {
+      String regNo = item['hit']['registration_number'];
+
+      // Skip non TXu records
+      if (regNo.substring(0, 3).toLowerCase() != 'txu') continue;
+
       String regNoAndDate =
           "${item['hit']['registration_number']} / ${item['hit']['representative_date']}";
-      String applicationTitle = item['hit']['title_application_title'][0];
+      String applicationTitle = item['hit']['title_application_title'] != null
+          ? item['hit']['title_application_title'][0]
+          : item['hit']['title_concatenated'] != null
+              ? item['hit']['title_concatenated']
+              : 'TITLE MISSING';
       String copyrightClaimant = item['hit']['claimants_list'] != null
           ? "${item['hit']['claimants_list'][0]['claimant_full_name']}, ${item['hit']['claimants_list'][0]['claimant_dates'] != null ? item['hit']['claimants_list'][0]['claimant_dates'].split(' ')[0] : ''}. ${item['hit']['claimants_list'][0]['claimant_address']}"
           : 'n/a';
@@ -79,17 +97,17 @@ class Scraper {
 
       results.add(
         CopyRightInfo(
-          registrationNumberAndDate: regNoAndDate,
-          applicationTitle: applicationTitle,
-          copyrightClaimant: copyrightClaimant,
-          rightsAndPermissions: rightsPermissions,
-          typeOfWork: typeWork,
+          registrationNumberAndDate: regNoAndDate.replaceAll('"', ''),
+          applicationTitle: applicationTitle.replaceAll('"', ''),
+          copyrightClaimant: copyrightClaimant.replaceAll('"', ''),
+          rightsAndPermissions: rightsPermissions.replaceAll('"', ''),
+          typeOfWork: typeWork.replaceAll('"', ''),
         ),
       );
     }
-    if (results.length == length + data.length) {
-      _completer.complete();
-    }
+    // if (results.length == length + data.length) {
+    // }
+    _completer.complete();
     // print(results.length);
   }
 }
